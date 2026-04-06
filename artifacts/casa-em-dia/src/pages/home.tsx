@@ -82,13 +82,10 @@ export default function HomePage() {
               <div className="flex-1 space-y-6">
                 <h2 className="text-3xl md:text-4xl font-bold">O que fazemos?</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Sabe aquela torneira pingando, o chuveiro que queimou num domingo de manhã, 
-                  ou aquela prateleira que você comprou e ainda não instalou? Nós cuidamos disso para você.
+                  Sabe aquela torneira pingando, a prateleira que você comprou e ainda não instalou, ou aquela lista de pequenos reparos que só cresce e nunca sai do papel? Nós cuidamos disso para você.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  A <strong>Casa em Dia</strong> oferece um serviço de assinatura de manutenção residencial. 
-                  Você paga um valor mensal e tem a tranquilidade de contar com profissionais qualificados, 
-                  uniformizados e de extrema confiança para realizar pequenos reparos todo mês.
+                  A <strong>Casa em Dia</strong> oferece um serviço de assinatura de manutenção residencial. Você paga um valor mensal e tem a tranquilidade de contar com profissionais qualificados e de extrema confiança para manter sua casa sempre em dia — todo mês, sem surpresas.
                 </p>
                 <div className="pt-4">
                   <WhatsappButton variant="outline">Quero saber mais</WhatsappButton>
