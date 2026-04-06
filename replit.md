@@ -25,3 +25,16 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+
+## Artifacts
+
+### Casa em Dia (`artifacts/casa-em-dia`)
+- **Type**: react-vite, previewPath: `/`
+- **Purpose**: Landing page for a Brazilian home maintenance subscription service in Osasco e região
+- **Key features**:
+  - 3 pricing plans: Visita de Conhecimento (R$149), Plano Mensal (R$299/mês), Visita Adicional (R$99)
+  - All CTAs link to WhatsApp (wa.me link — update number before deploying)
+  - Sections: Hero, Como Funciona, Vantagens, Planos, FAQ (Accordion), CTA, Footer
+  - All content in Brazilian Portuguese
+  - No backend — frontend-only landing page
+- **WhatsApp number**: Currently `5511999999999` — update `WHATSAPP_URL` constant in `src/pages/home.tsx`

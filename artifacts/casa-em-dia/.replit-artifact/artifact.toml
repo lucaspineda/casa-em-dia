@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Casa em Dia"
+version = "1.0.0"
+id = "artifacts/casa-em-dia"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24787
+
+[services.development]
+run = "pnpm --filter @workspace/casa-em-dia run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/casa-em-dia", "run", "build" ]
+publicDir = "artifacts/casa-em-dia/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24787"
+BASE_PATH = "/"
