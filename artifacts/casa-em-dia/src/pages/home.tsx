@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const WHATSAPP_URL = "https://wa.me/5511999999999";
+const WHATSAPP_URL = "https://wa.me/5511976783992";
 
 function WhatsappButton({ children, className, variant = "default", size = "default" }: { children: React.ReactNode, className?: string, variant?: "default" | "outline" | "ghost" | "link" | "destructive" | "secondary", size?: "default" | "sm" | "lg" | "icon" }) {
   return (
