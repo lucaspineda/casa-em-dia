@@ -95,12 +95,12 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex-1 w-full relative">
-                <div className="aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden bg-muted relative">
-                   <div className="absolute inset-0 bg-primary/5"></div>
-                   <div className="absolute inset-0 flex items-center justify-center text-primary/20">
-                     <Home className="w-32 h-32" />
-                   </div>
-                   {/* In a real scenario, put a nice image here */}
+                <div className="aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden bg-muted relative shadow-lg">
+                  <img
+                    src="/profissional-manutencao.png"
+                    alt="Profissional realizando manutenção residencial"
+                    className="w-full h-full object-cover object-center"
+                  />
                 </div>
                 {/* Decorative element */}
                 <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-accent/10 rounded-full blur-2xl"></div>
