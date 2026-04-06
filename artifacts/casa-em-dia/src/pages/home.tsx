@@ -66,7 +66,7 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom-10 duration-700 delay-500">
               <WhatsappButton size="lg" className="text-base px-8 h-14">
-                Assine já
+                Agendar uma visita
               </WhatsappButton>
               <Button asChild variant="outline" size="lg" className="text-base px-8 h-14 bg-background/50 backdrop-blur-sm">
                 <a href="#planos">Ver planos</a>
