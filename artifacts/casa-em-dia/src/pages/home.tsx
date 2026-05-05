@@ -1,21 +1,224 @@
-import { Home } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Home, Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
-const WHATSAPP_URL = "https://wa.me/5511976783992";
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mbdwoozl";
 
-function WhatsappButton({ children, className, variant = "default", size = "default" }: { children: React.ReactNode, className?: string, variant?: "default" | "outline" | "ghost" | "link" | "destructive" | "secondary", size?: "default" | "sm" | "lg" | "icon" }) {
+const leadFormSchema = z.object({
+  email: z.string().email("Informe um e-mail válido."),
+  phone: z
+    .string()
+    .min(8, "Informe um telefone para contato.")
+    .max(30, "Use no máximo 30 caracteres."),
+  address: z
+    .string()
+    .min(5, "Informe o endereço do imóvel.")
+    .max(300, "Use no máximo 300 caracteres."),
+  consent: z.boolean().refine((value) => value, {
+    message: "Você precisa autorizar o contato.",
+  }),
+});
+
+type LeadFormValues = z.infer<typeof leadFormSchema>;
+
+function ContactFormButton({ children, className, variant = "default", size = "default" }: { children: React.ReactNode, className?: string, variant?: "default" | "outline" | "ghost" | "link" | "destructive" | "secondary", size?: "default" | "sm" | "lg" | "icon" }) {
   return (
     <Button asChild className={className} variant={variant} size={size}>
-      <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+      <a href="#contato">
         {children}
       </a>
     </Button>
+  );
+}
+
+function LeadCaptureForm() {
+  const { toast } = useToast();
+  const form = useForm<LeadFormValues>({
+    resolver: zodResolver(leadFormSchema),
+    defaultValues: {
+      email: "",
+      phone: "",
+      address: "",
+      consent: false,
+    },
+  });
+
+  const onSubmit = form.handleSubmit(async (values) => {
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          email: values.email.trim(),
+          phone: values.phone.trim(),
+          address: values.address.trim(),
+          consent: values.consent,
+          source: "Casa em Dia site",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Não foi possível enviar sua solicitação agora. Tente novamente em alguns instantes.");
+      }
+
+      form.reset();
+      toast({
+        title: "Pedido de visita recebido.",
+        description: "Vamos analisar o endereço enviado e retornar para confirmar a disponibilidade e os próximos passos.",
+      });
+    } catch (error) {
+      toast({
+        title: "Não foi possível enviar.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Tente novamente em alguns instantes.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  return (
+    <div className="w-full rounded-3xl border border-primary/10 bg-background p-6 text-foreground shadow-2xl md:p-8">
+      <div className="mb-6 space-y-2">
+        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
+          Agende sua visita
+        </p>
+        <h3 className="text-2xl font-bold tracking-tight">
+          Envie os dados do imóvel e solicite o agendamento.
+        </h3>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          Preencha e-mail, telefone e endereço. Usamos essas informações para validar o atendimento na sua região e organizar a visita.
+        </p>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={onSubmit} className="space-y-5">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>E-mail</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="voce@exemplo.com"
+                    autoComplete="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Telefone</FormLabel>
+                <FormControl>
+                  <Input
+                    type="tel"
+                    placeholder="(11) 99999-9999"
+                    autoComplete="tel"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Endereço</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Rua, número, bairro e complemento"
+                    autoComplete="street-address"
+                    rows={3}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="consent"
+            render={({ field }) => (
+              <FormItem className="rounded-2xl border border-border/70 bg-secondary/30 p-4">
+                <div className="flex items-start gap-3">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === true)}
+                      className="mt-1"
+                    />
+                  </FormControl>
+                  <div className="space-y-1">
+                    <FormLabel className="text-sm leading-5">
+                      Autorizo o contato da Casa em Dia com base nos dados informados.
+                    </FormLabel>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      Usaremos esses dados apenas para responder sua solicitação e organizar o atendimento.
+                    </p>
+                    <FormMessage />
+                  </div>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <div className="flex flex-col gap-3 pt-2">
+            <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                "Quero agendar minha visita"
+              )}
+            </Button>
+            <p className="text-center text-xs text-muted-foreground">
+                Depois do envio, nossa equipe confirma a área de atendimento e combina a melhor data.
+            </p>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }
 
@@ -35,9 +238,9 @@ export default function HomePage() {
             <a href="#vantagens" className="hover:text-foreground transition-colors">Vantagens</a>
             <a href="#faq" className="hover:text-foreground transition-colors">Dúvidas</a>
           </nav>
-          <WhatsappButton variant="default" className="hidden md:inline-flex">
-            Falar no WhatsApp
-          </WhatsappButton>
+          <ContactFormButton variant="default" className="hidden md:inline-flex">
+            Agendar visita
+          </ContactFormButton>
         </div>
       </header>
 
@@ -65,9 +268,9 @@ export default function HomePage() {
               Manutenção residencial preventiva e corretiva com preço fixo e sem dor de cabeça.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom-10 duration-700 delay-500">
-              <WhatsappButton size="lg" className="text-base px-8 h-14">
+              <ContactFormButton size="lg" className="text-base px-8 h-14">
                 Agendar uma visita
-              </WhatsappButton>
+              </ContactFormButton>
               <Button asChild variant="outline" size="lg" className="text-base px-8 h-14 bg-background/50 backdrop-blur-sm">
                 <a href="#planos">Ver planos</a>
               </Button>
@@ -88,7 +291,7 @@ export default function HomePage() {
                   A <strong>Casa em Dia</strong> oferece um serviço de assinatura de manutenção residencial. Você paga um valor mensal e tem a tranquilidade de contar com profissionais qualificados e de extrema confiança para manter sua casa sempre em dia — todo mês, sem surpresas.
                 </p>
                 <div className="pt-4">
-                  <WhatsappButton variant="outline">Quero saber mais</WhatsappButton>
+                  <ContactFormButton variant="outline">Quero agendar uma conversa</ContactFormButton>
                 </div>
               </div>
               <div className="flex-1 w-full relative">
@@ -181,9 +384,9 @@ export default function HomePage() {
                     <span>Conheça nossa qualidade</span>
                   </li>
                 </ul>
-                <WhatsappButton variant="outline" className="w-full bg-transparent text-background border-background/20 hover:bg-background/10 hover:text-background">
+                <ContactFormButton variant="outline" className="w-full bg-transparent text-background border-background/20 hover:bg-background/10 hover:text-background">
                   Agendar Visita
-                </WhatsappButton>
+                </ContactFormButton>
               </div>
 
               {/* Plano Mensal (Featured) */}
@@ -219,9 +422,9 @@ export default function HomePage() {
                     <span>Não inclui compra de peças</span>
                   </li>
                 </ul>
-                <WhatsappButton className="w-full text-base h-12">
-                  Assinar Agora
-                </WhatsappButton>
+                <ContactFormButton className="w-full text-base h-12">
+                  Solicitar esse plano
+                </ContactFormButton>
               </div>
 
               {/* Visita Adicional */}
@@ -243,9 +446,9 @@ export default function HomePage() {
                     <span>Atendimento prioritário</span>
                   </li>
                 </ul>
-                <WhatsappButton variant="outline" className="w-full bg-transparent text-background border-background/20 hover:bg-background/10 hover:text-background">
+                <ContactFormButton variant="outline" className="w-full bg-transparent text-background border-background/20 hover:bg-background/10 hover:text-background">
                   Solicitar Extra
-                </WhatsappButton>
+                </ContactFormButton>
               </div>
             </div>
           </div>
@@ -284,7 +487,7 @@ export default function HomePage() {
               <AccordionItem value="item-4" className="border-b-0">
                 <AccordionTrigger className="text-left text-lg font-medium px-4">Como faço para agendar a visita?</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground px-4 text-base leading-relaxed">
-                  Todo o agendamento é feito de forma rápida e prática pelo WhatsApp. Você nos chama, relata o que precisa ser feito, e agendamos o melhor dia e horário para a visita do nosso profissional.
+                  O agendamento é feito pelo formulário da página. Você informa email, telefone e endereço, nossa equipe valida a cobertura da sua região e retorna para combinar o melhor dia e horário para a visita.
                 </AccordionContent>
               </AccordionItem>
               <div className="h-px bg-border mx-4"></div>
@@ -299,21 +502,35 @@ export default function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 md:py-32 relative overflow-hidden">
+        <section id="contato" className="py-20 md:py-32 relative overflow-hidden">
           <div className="absolute inset-0 bg-primary z-0"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 z-0"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 z-0"></div>
           
-          <div className="container relative z-10 mx-auto px-4 md:px-6 text-center">
-            <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-6 max-w-3xl mx-auto">
-              Pronto para ter uma casa sempre bem cuidada?
-            </h2>
-            <p className="text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
-              Fale com a gente agora mesmo e agende sua primeira visita. Sem compromisso, apenas soluções.
-            </p>
-            <WhatsappButton size="lg" variant="secondary" className="text-lg px-10 h-16 rounded-full shadow-xl hover:scale-105 transition-transform">
-              Entre em contato
-            </WhatsappButton>
+          <div className="container relative z-10 mx-auto px-4 md:px-6">
+            <div className="grid gap-12 lg:grid-cols-[1fr_520px] lg:items-center">
+              <div className="text-center lg:text-left">
+                <p className="mb-4 text-sm font-semibold uppercase tracking-[0.28em] text-primary-foreground/70">
+                  Próximo passo simples
+                </p>
+                <h2 className="mb-6 text-3xl font-bold text-primary-foreground md:text-5xl max-w-3xl">
+                  Agende sua visita sem sair da página.
+                </h2>
+                <p className="mb-8 max-w-2xl text-lg text-primary-foreground/80 md:text-xl">
+                  Envie os dados do seu imóvel pelo formulário, e nossa equipe retorna para confirmar cobertura, disponibilidade e o melhor horário.
+                </p>
+                <div className="flex flex-col items-center gap-4 sm:flex-row lg:items-start">
+                  <ContactFormButton size="lg" variant="secondary" className="text-base px-8 h-14 rounded-full shadow-xl hover:scale-105 transition-transform">
+                    Preencher formulário
+                  </ContactFormButton>
+                  <Button asChild size="lg" variant="outline" className="h-14 rounded-full border-white/25 bg-transparent px-8 text-base text-primary-foreground hover:bg-white/10 hover:text-primary-foreground">
+                    <a href="#faq">Ver dúvidas comuns</a>
+                  </Button>
+                </div>
+              </div>
+
+              <LeadCaptureForm />
+            </div>
           </div>
         </section>
       </main>
@@ -330,8 +547,8 @@ export default function HomePage() {
             <p className="mt-1">&copy; {new Date().getFullYear()} Casa em Dia. Todos os direitos reservados.</p>
           </div>
           <div className="flex gap-4">
-            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline transition-colors">
-              Falar no WhatsApp
+            <a href="#contato" className="text-sm font-medium text-primary hover:underline transition-colors">
+              Agendar visita
             </a>
           </div>
         </div>

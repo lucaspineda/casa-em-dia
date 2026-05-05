@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: leads
+    description: Lead capture operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /leads:
+    post:
+      operationId: createLead
+      tags: [leads]
+      summary: Create lead
+      description: Saves a website lead submission for follow-up.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLeadRequest"
+      responses:
+        "201":
+          description: Lead created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateLeadResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +54,32 @@ components:
           type: string
       required:
         - status
+    CreateLeadRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          minLength: 8
+          maxLength: 30
+        address:
+          type: string
+          minLength: 5
+          maxLength: 300
+        consent:
+          type: boolean
+      required:
+        - email
+        - phone
+        - address
+        - consent
+    CreateLeadResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required:
+        - ok
 

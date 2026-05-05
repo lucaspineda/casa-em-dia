@@ -5,9 +5,6 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
 
 export interface CreateLeadRequest {
   email: string;
@@ -22,8 +19,4 @@ export interface CreateLeadRequest {
    */
   address: string;
   consent: boolean;
-}
-
-export interface CreateLeadResponse {
-  ok: boolean;
 }

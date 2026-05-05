@@ -14,3 +14,23 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Saves a website lead submission for follow-up.
+ * @summary Create lead
+ */
+export const createLeadBodyPhoneMin = 8;
+export const createLeadBodyPhoneMax = 30;
+
+export const createLeadBodyAddressMin = 5;
+export const createLeadBodyAddressMax = 300;
+
+export const CreateLeadBody = zod.object({
+  email: zod.string().email(),
+  phone: zod.string().min(createLeadBodyPhoneMin).max(createLeadBodyPhoneMax),
+  address: zod
+    .string()
+    .min(createLeadBodyAddressMin)
+    .max(createLeadBodyAddressMax),
+  consent: zod.boolean(),
+});

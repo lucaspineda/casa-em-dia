@@ -6,6 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from "./createLeadRequest";
-export * from "./createLeadResponse";
-export * from "./healthStatus";
+export interface CreateLeadResponse {
+  ok: boolean;
+}
